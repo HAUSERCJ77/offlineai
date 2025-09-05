@@ -44,18 +44,24 @@ const modelPath = "https://huggingface.co/Xenova/tiny-llama-fast-tokenizer/resol
 
 async function initModel() {
   try {
+    // Choose backend: 'webgpu' if available, otherwise 'wasm'
+    const backend = navigator.gpu ? "webgpu" : "wasm";
+    if (backend === "wasm") appendBot("⚠️ WebGPU not available, falling back to CPU (slower)");
+
     modelHandle = await webllm.init({
       model: modelPath,
-      backend: "webgpu",
+      backend: backend,
       temperature: 0.7,
       max_output_tokens: 128
     });
+
     appendBot("✅ Model loaded. You can now go offline and reload this page!");
   } catch (e) {
     console.error(e);
     appendBot("❌ Failed to load model.");
   }
 }
+
 
 function appendUser(text) {
   let d=document.createElement("div"); d.className="msg user"; d.textContent=text; chat.appendChild(d); chat.scrollTop=chat.scrollHeight;
